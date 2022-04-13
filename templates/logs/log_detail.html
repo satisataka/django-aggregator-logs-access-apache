@@ -1,0 +1,62 @@
+{% extends 'layout/basic.html' %}
+{% block title %}Detail Log{% endblock  %}
+
+{% block content %}
+<div class="container">
+  {% if object %}
+  <table class="table table-sm my-3">
+    <thead>
+      <tr>
+        <th scope="col">&nbsp;</th>
+        <th scope="col">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row" class="text-nowrap">Remote host (IP)</th>
+        <td class="text-nowrap">{{ object.host }}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">Remote logname</th>
+        <td class="text-nowrap">{% if object.logname %}{{ object.logname }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">Remote user</th>
+        <td class="text-nowrap">{% if object.user %}{{ object.user }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">Date</th>
+        <td class="text-nowrap">{{ object.date|date:"d.m.Y G:i:s" }}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">First request line</th>
+        <td>{% if object.request_line %}{{ object.request_line }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">Status</th>
+        <td class="text-nowrap">{{ object.status }}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">Size response (bytes)</th>
+        <td class="text-nowrap">{% if object.bytes %}{{ object.bytes|filesizeformat  }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">Referer</th>
+        <td>{% if object.referer %}{{ object.referer }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th scope="row" class="text-nowrap">User-agent</th>
+        <td>{% if object.user_agent %}{{ object.user_agent }}{% else %}-{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% else %}
+    <h2>Не найдено</h2>
+  {% endif %}
+  <a href={% if request.META.HTTP_REFERER %}{{ request.META.HTTP_REFERER }}{% else %}{% url 'logs_list' %}{% endif %} class="btn btn btn-outline-primary">&laquo; Back</a>
+</div class="container">
+
+
+
+
+{% endblock content %}
