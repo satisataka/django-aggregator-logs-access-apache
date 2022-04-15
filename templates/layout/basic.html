@@ -2,29 +2,42 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{% block title %}Main{% endblock %}</title>
-	<!-- Bootstrap CSS -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aggregator Log|{% block title %}Main{% endblock %}</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
 <body>
-	<nav class="navbar navbar-light bg-light">
-		<div class="container">
-			<a class="navbar-brand h1 my-0" href="/">Aggregator Log{% if user.get_username %} ({{user.get_username}}){% endif %}</a>
-			<a class="nav-link active me-auto" aria-current="page" href=''>{% if user.is_authenticated %}Account{% endif %}</a>
+  <nav class="navbar navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand h1 my-0" href="/">Aggregator Log{% if user.get_username %} (Welcome, {{user.get_username}}){% endif %}</a>
+      <a class="nav-link active me-auto" aria-current="page" href={% url 'logs_list' %}>{% if user.is_authenticated %}All Logs{% endif %}</a>
 
-			{% if user.is_authenticated %}
-				<a type="button" class="btn btn-lg text-nowrap btn-danger"	href=''>Exit</a>
-			{% else %}
-				<a type="button" class="btn btn-lg text-nowrap btn-primary"	href=''>Login</a>
-			{% endif %}
+      {% if user.is_authenticated %}
+        <a type="button" class="btn btn-lg text-nowrap btn-danger" href={% url 'main:logout' %}>Exit</a>
+      {% else %}
+        <a type="button" class="btn btn-lg text-nowrap btn-primary" href={% url 'main:login' %}>Login</a>
+      {% endif %}
 
-		</div>
-	</nav>
-	{% block content %}
-
-	{% endblock %}
+    </div>
+  </nav>
+  <!-- Messages -->
+  <div class="toast-container position-absolute top-0 end-0 p-3">
+    {% if messages %}
+      <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
+      {% for message in messages %}
+        <div class="toast-header">
+        {% if message.extra_tags %}<strong class="me-auto">{{ message.extra_tags }}</strong>{% endif %}
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+        </div>
+      <div class="toast-body">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% block content %}
+  {% endblock %}
 </body>
 </html>

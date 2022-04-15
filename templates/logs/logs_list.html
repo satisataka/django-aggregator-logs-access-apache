@@ -1,51 +1,21 @@
 {% extends 'layout/basic.html' %}
-{% block title %}Account{% endblock  %}
+{% block title %}All Logs{% endblock  %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <div class="container">
-
+  <!--Filter-->
   <form class="row gx-3 gy-2 gy-md-0 mx-2 my-3">
-    {% for field in form %}
-    <div class="col-md-6">
-      <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-      <input type={% if field.widget_type == 'time' %}"{{ field.widget_type }}"step="1"{% else %}{{ field.widget_type }}{% endif %} class="form-control  {% if field.errors %}is-invalid{% endif %}" id="{{ field.id_for_label }}" name={{ field.html_name }} value={% if field.value %} {{ field.value }} {% else %} {% if field.initial %} {{ field.initial }} {% endif %} {% endif %}>
-      <div id="{{ field.id_for_label }}" class="form-text">{{ field.help_text }}</div>
-      <div id="{{ field.id_for_label }}" class="invalid-feedback">
-        {% for error in field.errors %}
-          {{ error }}
-        {% endfor %}
-      </div>
-    </div>
-    {% if field.html_name == 'host' %}
-    <div class="col-md-6">
-    </div>
-    {% endif %}
-
-    {% endfor %}
-
+    {{ filter.form|crispy }}
     <div class="col-12 my-1">
       <button type="submit" class="btn btn-sm btn-outline-primary">Фильтр</button>
       <a href={% url 'logs_list' %} class="btn btn-sm btn btn-outline-danger">Сброс</a>
     </div>
   </form>
-
   {% if object_list %}
-  <nav >
-    <ul class="pagination">
-      {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1{% if page_get %}&{{ page_get }}{% endif %}">&laquo; First</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if page_get %}&{{ page_get }}{% endif %}">Previous</a></li>
-      {% endif %}
-
-      <li class="page-item disabled"><a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a></li>
-
-      {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if page_get %}&{{ page_get }}{% endif %}">Next</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if page_get %}&{{ page_get }}{% endif %}">Last &raquo;</a></li>
-      {% endif %}
-    </ul>
-  </nav>
-
+  <!--Pagination-->
+  {% include 'partials/_pagination.html' %}
+  <!--Teble Items-->
   <table class="table table-sm">
     <thead>
       <tr>
@@ -58,9 +28,8 @@
       </tr>
     </thead>
     <tbody>
-
       {% for log in object_list %}
-        <tr >
+        <tr>
           <th scope="row" class="text-nowrap">{{ log.host }}</th>
           <td class="text-nowrap">{{ log.date|date:"d.m.Y G:i:s" }}</td>
           <td>{{ log.request_line }}</td>
@@ -71,28 +40,10 @@
       {% endfor %}
     </tbody>
   </table>
-
-  <nav class="my-3">
-    <ul class="pagination">
-      {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1{% if page_get %}&{{ page_get }}{% endif %}">&laquo; First</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if page_get %}&{{ page_get }}{% endif %}">Previous</a></li>
-      {% endif %}
-
-      <li class="page-item disabled"><a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a></li>
-
-      {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if page_get %}&{{ page_get }}{% endif %}">Next</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if page_get %}&{{ page_get }}{% endif %}">Last &raquo;</a></li>
-      {% endif %}
-    </ul>
-  </nav>
+  <!--Pagination-->
+  {% include 'partials/_pagination.html' %}
   {% else %}
-    <h2>Не найдено</h2>
+    <h2>Nothing found</h2>
   {% endif %}
 </div class="container">
-
-
-
-
 {% endblock content %}

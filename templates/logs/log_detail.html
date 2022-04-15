@@ -38,7 +38,7 @@
       </tr>
       <tr>
         <th scope="row" class="text-nowrap">Size response (bytes)</th>
-        <td class="text-nowrap">{% if object.bytes %}{{ object.bytes|filesizeformat  }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">{% if object.bytes %}{{ object.bytes|filesizeformat }}{% else %}-{% endif %}</td>
       </tr>
       <tr>
         <th scope="row" class="text-nowrap">Referer</th>
@@ -50,13 +50,7 @@
       </tr>
     </tbody>
   </table>
-  {% else %}
-    <h2>Не найдено</h2>
   {% endif %}
   <a href={% if request.META.HTTP_REFERER %}{{ request.META.HTTP_REFERER }}{% else %}{% url 'logs_list' %}{% endif %} class="btn btn btn-outline-primary">&laquo; Back</a>
 </div class="container">
-
-
-
-
 {% endblock content %}
