@@ -1,36 +1,22 @@
 from glob import iglob
 from apachelogs import LogParser, COMBINED
 from django.conf import settings
-
-
-def log_save_db(parse_log_list, last_position_in_file, last_line, last_position):
-    LogAccessApacheModel.objects.bulk_create(parse_log_list)
-    last_position_in_file.last_line = last_line
-    last_position_in_file.last_position =  last_position
-    last_position_in_file.save()
+from .models import LogAccessApacheModel, FileLogModel
 
 
 def parser_log():
     parser = LogParser(COMBINED)
-    path_files = os.path.join(settings.PARSER_LOG_PATH, settings.PARSER_LOG_FILE_MASK)
-    files = iglob(path_files)
+    files = iglob(settings.PARSER_LOG_PATH)
 
     for file in files:
         with open(file, "r+", encoding='UTF-8') as f:
-            last_position_in_file, _ = LastPositionInFileModel.objects.get_or_create(
-                path_file=file,
-                defaults={
-                    'last_line': '',
-                    'last_position': 0,
-                },
-            )
+            file_log = FileLogModel.get_filelog_and_check_last_position(f)
+            f.seek(file_log.last_position)
 
-            last_position = last_position_in_file.get_last_position_in_file(f)
-            f.seek(last_position)
-            line = f.readline()
             parse_log_list = []
             num_line = 0
 
+            line = f.readline()
             while line:
                 entry = parser.parse(line)
                 log = LogAccessApacheModel(
@@ -46,29 +32,15 @@ def parser_log():
                     )
                 parse_log_list.append(log)
                 num_line += 1
-
                 previous_line = line
+                last_position = f.tell()
                 line = f.readline()
 
                 # write to the database if the required amount has been accumulated or if the file has ended
-                if num_line == settings.PARSER_LOG_CREATED_SINGLE_QUERY or not line:
-                    log_save_db(parse_log_list, last_position_in_file, previous_line, f.tell())
+                if not settings.PARSER_LOG_CREATED_SINGLE_QUERY or not line or num_line == settings.PARSER_LOG_CREATED_SINGLE_QUERY:
+                    LogAccessApacheModel.objects.bulk_create(parse_log_list)
+                    file_log.last_line = previous_line
+                    file_log.last_position = last_position
+                    file_log.save()
                     parse_log_list = []
                     num_line = 0
-
-
-if __name__ == '__main__':
-    import os
-    import sys
-
-    sys.path.append(os.path.split(os.path.dirname(__file__))[0])
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "aggregator_logs.settings")
-
-    import django
-    django.setup()
-
-    from log_access_apache.models import LogAccessApacheModel, LastPositionInFileModel
-
-    parser_log()
-else:
-    from .models import LogAccessApacheModel, LastPositionInFileModel

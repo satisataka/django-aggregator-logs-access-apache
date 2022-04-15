@@ -62,13 +62,9 @@ class LogAccessApacheModel(models.Model):
         verbose_name_plural = "Logs Access Apache"
 
 
-
-
-class LastPositionInFileModel(models.Model):
+class FileLogModel(models.Model):
     date = models.DateTimeField(
         _('Data logging'),
-        null=False,
-        blank=False,
         auto_now=True,
     )
     path_file = models.TextField(
@@ -81,44 +77,43 @@ class LastPositionInFileModel(models.Model):
     last_line = models.TextField(
         _('Last line'),
         null=False,
-        blank=False,
+        blank=True,
+        default='',
     )
     last_position = models.PositiveBigIntegerField(
         _('Last position'),
         null=False,
         blank=False,
+        default=0,
     )
 
     def __str__(self):
         return self.path_file
 
-
-    def get_last_position_in_file(self, file):
+    @classmethod
+    def get_filelog_and_check_last_position(cls, file):
         """
         check a read new file or no
-        if yes: read from the start,
+        if new: read from the start,
         else: compare last_line in db and last line file in last position
             if last_line matched: read next lines
             else: we consider that the file was cleared and read from the beginning
         """
-        if not self.last_line or not self.last_position:
-            return 0
+        file_log, create = FileLogModel.objects.get_or_create(path_file=file.name)
 
-        # calculate start last line
-        start_last_line = self.last_position - len(self.last_line)
-        file.seek(start_last_line)
-        last_line_in_file = file.readline()
-        if last_line_in_file:
-            # the string written to the database does not match the string in the file
-            # means the file is new
-            if last_line_in_file != self.last_line:
-                return 0
-        else:
-            return 0
+        if not create and (file_log.last_line or file_log.last_position):
+            # calculate start last line
+            start_last_line = file_log.last_position - len(file_log.last_line)
+            file.seek(start_last_line)
+            last_line_in_file = file.readline()
+            if not last_line_in_file or last_line_in_file != file_log.last_line:
+                file_log.last_line=''
+                file_log.last_position=0
+                file_log.save()
+        return file_log
 
-        return self.last_position
 
     class Meta:
         ordering = ['date']
-        verbose_name = "File"
-        verbose_name_plural = "Files"
+        verbose_name = "File Log"
+        verbose_name_plural = "File Logs"

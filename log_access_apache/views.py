@@ -9,10 +9,10 @@ from .filters import LogAccessApacheFilter
 class LogAccessApacheFilterView(LoginRequiredMixin, FilterView):
     template_name = "logs/logs_list.html"
     model = LogAccessApacheModel
-    paginate_by = 10
+    paginate_by = 100
     filterset_class = LogAccessApacheFilter
 
 
-class LogDetailView(DetailView):
+class LogDetailView(LoginRequiredMixin, DetailView):
     model = LogAccessApacheModel
     template_name = "logs/log_detail.html"

@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import LogAccessApacheModel, LastPositionInFileModel
+from .models import LogAccessApacheModel, FileLogModel
 # Register your models here.
 
-admin.site.register(LastPositionInFileModel)
+admin.site.register(FileLogModel)
 admin.site.register(LogAccessApacheModel)
